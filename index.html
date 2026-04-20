@@ -1426,16 +1426,12 @@
     setInterval(countdown, 1000);
 
     //form submit
-   
-
-  document.getElementById("waitlistForm").addEventListener("submit", async function(e){
+   document.getElementById("waitlistForm").addEventListener("submit", async function(e){
   e.preventDefault();
 
   const form = this;
   const btn = document.getElementById("submitBtn");
   const status = document.getElementById("formStatus");
-
-  if (btn.disabled) return;
 
   const data = {
     name: form.name.value.trim(),
@@ -1446,39 +1442,36 @@
     website: form.website.value.trim()
   };
 
-  if (data.website !== "") return;
-
   btn.disabled = true;
   btn.innerHTML = "Submitting...";
-  status.innerHTML = "";
 
   try {
-    await fetch("YOUR_SCRIPT_URL", {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxtcREm0EDKiot2Raa-8dINC-44WIW8evqA4_q_dpR7fADdX5VRzAg6KMpV3HisWtku/exec", {
       method: "POST",
-      mode: "no-cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
       body: JSON.stringify(data)
     });
 
-    status.innerHTML = "✅ Thank you! You've joined the waitlist.";
-    status.style.color = "#1FA67A";
+    const result = await res.json();
 
-    btn.innerHTML = "Submitted ✓";
-    form.reset();
+    if(result.status === "success"){
+      status.innerHTML = "✅ Thank you! You've joined the waitlist.";
+      status.style.color = "#1FA67A";
+      form.reset();
+    } else {
+      throw new Error();
+    }
 
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.innerHTML = "Secure my spot →";
-    }, 2500);
-
-  } catch(err) {
-    status.innerHTML = "❌ Something went wrong.";
+  } catch(err){
+    status.innerHTML = "❌ Submission failed.";
     status.style.color = "#e53935";
-
-    btn.disabled = false;
-    btn.innerHTML = "Secure my spot →";
   }
-});
 
+  btn.disabled = false;
+  btn.innerHTML = "Secure my spot →";
+});
   </script>
 </body>
 </html>
